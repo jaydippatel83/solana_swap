@@ -1,9 +1,7 @@
-use std::alloc::System;
-
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token_interface::{transfer_tokens, Mint, TokenAccount, TokenInterface},
+    token_interface::{Mint, TokenAccount, TokenInterface},
 };
 
 use super::transfer_tokens;
@@ -32,25 +30,25 @@ pub struct MakeOffer<'info> {
     #[account(
         init,
         payer = maker,
-        space =  ANCHOR_DISCRIMINATOR + offer::INIT_SPACE,
+        space = ANCHOR_DISCRIMINATOR + Offer::INIT_SPACE,
         seeds = [b"offer", maker.key().as_ref(), id.to_le_bytes().as_ref()],
         bump,
     )]
-    pub offer: Account<'info, System>,
+    pub offer: Account<'info, Offer>,
     pub vault: InterfaceAccount<'info, TokenAccount>,
-    pub system_program: Program<'info, System>,
+    pub system_program: Program<'info, anchor_lang::system_program::System>,
     pub token_program: Interface<'info, TokenInterface>,
     pub associated_token_program: Program<'info, AssociatedToken>,
 }
 
 pub fn send_offered_tokens_to_vault(
-    ctx: Context<MakeOffer>,
+    ctx: &Context<MakeOffer>,
     token_a_offered_amount: u64,
 ) -> Result<()> {
     transfer_tokens(
-        &ctx.accounts.maker_token_account_a,
+        &ctx.accounts.make_token_account_a,
         &ctx.accounts.vault,
-        &token_a_offered_amount,
+        token_a_offered_amount,
         &ctx.accounts.token_mint_a,
         &ctx.accounts.maker,
         &ctx.accounts.token_program,
