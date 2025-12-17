@@ -1,7 +1,15 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token_interface::{Mint, TokenAccount, TokenInterface, TransferChecked, transfer_checked},
+    token_interface::{
+        Mint,
+        TokenAccount,
+        TokenInterface,
+        TransferChecked,
+        transfer_checked,
+        CloseAccount,
+        close_account,
+    },
 };
 
 use super::transfer_tokens;
@@ -96,5 +104,14 @@ pub fn withdraw_and_close_vault(ctx: &Context<TakeOffer>) -> Result<()> {
     };
     let cpi_context = CpiContext::new_with_signer(ctx.accounts.token_program.to_account_info(), accounts, &signer_seeds);
     transfer_checked(cpi_context, ctx.accounts.vault.amount, ctx.accounts.token_mint_a.decimals)?;
+
+    let accounts = CloseAccount{
+        account: ctx.accounts.vault.to_account_info(),
+        destination: ctx.accounts.taker.to_account_info(),
+        authority: ctx.accounts.offer.to_account_info(),
+    };
+
+    let cpi_context = CpiContext::new_with_signer(ctx.accounts.system_program.to_account_info(), accounts, &signer_seeds);
+    close_account(cpi_context)?;  
     Ok(())
 }
