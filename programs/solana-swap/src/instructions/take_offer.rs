@@ -112,6 +112,6 @@ pub fn withdraw_and_close_vault(ctx: &Context<TakeOffer>) -> Result<()> {
     };
 
     let cpi_context = CpiContext::new_with_signer(ctx.accounts.system_program.to_account_info(), accounts, &signer_seeds);
-    close_account(cpi_context)?;  
+    close_account(cpi_context)?;
     Ok(())
 }
