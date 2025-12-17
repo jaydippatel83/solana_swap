@@ -101,11 +101,7 @@ export function CreateOfferForm() {
           makeTokenAccountA: makerTokenAccountA,
           offer: offerPda,
           vault,
-          systemProgram: web3.SystemProgram.programId,
           tokenProgram: TOKEN_PROGRAM_ID,
-          associatedTokenProgram: new PublicKey(
-            "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
-          ),
         })
         .rpc();
 

@@ -102,11 +102,7 @@ export function OffersList() {
           makerTokenAccountB,
           offer: offer.publicKey,
           vault,
-          systemProgram: PublicKey.default,
           tokenProgram: TOKEN_PROGRAM_ID,
-          associatedTokenProgram: new PublicKey(
-            "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
-          ),
         })
         .rpc();
 
