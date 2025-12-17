@@ -1,0 +1,1 @@
+anchor_lang::context::Context<'_, '_, '_, '_, make_offer::__client_accounts_make_offer::MakeOffer>
