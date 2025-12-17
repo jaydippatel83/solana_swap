@@ -1,6 +1,12 @@
 "use client";
 
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import dynamic from "next/dynamic";
+import { ClientOnly } from "./ClientOnly";
+
+const WalletMultiButtonDynamic = dynamic(
+  async () => (await import("@solana/wallet-adapter-react-ui")).WalletMultiButton,
+  { ssr: false }
+);
 
 export function Header() {
   return (
@@ -18,6 +24,12 @@ export function Header() {
 
           <nav className="hidden md:flex space-x-8">
             <a
+              href="#tokens"
+              className="text-gray-300 hover:text-white transition-colors"
+            >
+              Tokens
+            </a>
+            <a
               href="#swap"
               className="text-gray-300 hover:text-white transition-colors"
             >
@@ -29,15 +41,11 @@ export function Header() {
             >
               Offers
             </a>
-            <a
-              href="#about"
-              className="text-gray-300 hover:text-white transition-colors"
-            >
-              About
-            </a>
           </nav>
 
-          <WalletMultiButton />
+          <ClientOnly>
+            <WalletMultiButtonDynamic />
+          </ClientOnly>
         </div>
       </div>
     </header>

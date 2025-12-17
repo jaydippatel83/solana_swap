@@ -22,8 +22,14 @@ export function Hero() {
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
           <a
-            href="#swap"
+            href="#tokens"
             className="px-8 py-4 rounded-full bg-gradient-solana text-white font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition-all hover:-translate-y-1"
+          >
+            Create Tokens
+          </a>
+          <a
+            href="#swap"
+            className="px-8 py-4 rounded-full glass text-white font-semibold hover:bg-white/10 transition-all"
           >
             Start Trading
           </a>

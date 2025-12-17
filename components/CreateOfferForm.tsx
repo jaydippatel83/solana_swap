@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
-import { getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID, createAssociatedTokenAccountInstruction } from "@solana/spl-token";
 import { Program, AnchorProvider, web3, BN } from "@coral-xyz/anchor";
 import { SolanaSwap } from "@/types/solana_swap";
 import IDL from "@/idl/solana_swap.json";
@@ -24,6 +24,7 @@ export function CreateOfferForm() {
 
   const [loading, setLoading] = useState(false);
   const [txSignature, setTxSignature] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,6 +32,7 @@ export function CreateOfferForm() {
 
     setLoading(true);
     setTxSignature("");
+    setError("");
 
     try {
       const provider = new AnchorProvider(
@@ -48,6 +50,23 @@ export function CreateOfferForm() {
       const tokenMintB = new PublicKey(formData.tokenMintB);
       const id = new BN(formData.offerId);
 
+      // Check if token account exists
+      const makerTokenAccountA = getAssociatedTokenAddressSync(
+        tokenMintA,
+        wallet.publicKey,
+        false,
+        TOKEN_PROGRAM_ID
+      );
+
+      const accountInfo = await connection.getAccountInfo(makerTokenAccountA);
+      if (!accountInfo) {
+        setError(
+          `Token account for Token A doesn't exist. Please create it first using:\nspl-token create-account ${formData.tokenMintA}`
+        );
+        setLoading(false);
+        return;
+      }
+
       // Derive PDAs
       const [offerPda] = PublicKey.findProgramAddressSync(
         [
@@ -56,13 +75,6 @@ export function CreateOfferForm() {
           id.toArrayLike(Buffer, "le", 8),
         ],
         program.programId
-      );
-
-      const makerTokenAccountA = getAssociatedTokenAddressSync(
-        tokenMintA,
-        wallet.publicKey,
-        false,
-        TOKEN_PROGRAM_ID
       );
 
       const vault = getAssociatedTokenAddressSync(
@@ -98,7 +110,6 @@ export function CreateOfferForm() {
         .rpc();
 
       setTxSignature(tx);
-      alert("Offer created successfully!");
       
       // Reset form
       setFormData({
@@ -108,9 +119,16 @@ export function CreateOfferForm() {
         tokenAAmount: "",
         tokenBAmount: "",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating offer:", error);
-      alert("Failed to create offer. Check console for details.");
+      
+      if (error.message?.includes("AccountNotInitialized")) {
+        setError(
+          "Token account not found. Please create a token account for Token A first.\n\nUsing CLI: spl-token create-account <TOKEN_MINT_ADDRESS>"
+        );
+      } else {
+        setError(error.message || "Failed to create offer. Check console for details.");
+      }
     } finally {
       setLoading(false);
     }
@@ -118,6 +136,16 @@ export function CreateOfferForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Instructions */}
+      <div className="p-4 bg-blue-900/20 border border-blue-500/50 rounded-xl">
+        <p className="text-sm text-blue-400 font-semibold mb-2">⚠️ Before creating an offer:</p>
+        <ol className="text-xs text-blue-300 space-y-1 list-decimal list-inside">
+          <li>Make sure you have a token account for Token A</li>
+          <li>Make sure you have enough Token A balance</li>
+          <li>Run: <code className="bg-black/30 px-1 py-0.5 rounded">spl-token create-account {'<MINT>'}</code></li>
+        </ol>
+      </div>
+
       <div>
         <label className="block text-sm font-medium text-gray-300 mb-2">
           Offer ID
@@ -204,6 +232,13 @@ export function CreateOfferForm() {
         />
       </div>
 
+      {error && (
+        <div className="p-4 bg-red-900/20 border border-red-500/50 rounded-xl">
+          <p className="text-sm text-red-400 font-semibold mb-2">❌ Error</p>
+          <p className="text-xs text-red-300 whitespace-pre-line">{error}</p>
+        </div>
+      )}
+
       <button
         type="submit"
         disabled={loading}
@@ -213,8 +248,8 @@ export function CreateOfferForm() {
       </button>
 
       {txSignature && (
-        <div className="mt-4 p-4 bg-green-900/20 border border-green-500/50 rounded-xl">
-          <p className="text-sm text-green-400 mb-2">Transaction successful!</p>
+        <div className="p-4 bg-green-900/20 border border-green-500/50 rounded-xl">
+          <p className="text-sm text-green-400 mb-2">✅ Transaction successful!</p>
           <a
             href={`https://explorer.solana.com/tx/${txSignature}?cluster=devnet`}
             target="_blank"
