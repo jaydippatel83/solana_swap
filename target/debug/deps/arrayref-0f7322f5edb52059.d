@@ -1,7 +1,0 @@
-/Users/apple/Desktop/solana-swap/target/debug/deps/arrayref-0f7322f5edb52059.d: /Users/apple/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/arrayref-0.3.9/src/lib.rs
-
-/Users/apple/Desktop/solana-swap/target/debug/deps/libarrayref-0f7322f5edb52059.rlib: /Users/apple/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/arrayref-0.3.9/src/lib.rs
-
-/Users/apple/Desktop/solana-swap/target/debug/deps/libarrayref-0f7322f5edb52059.rmeta: /Users/apple/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/arrayref-0.3.9/src/lib.rs
-
-/Users/apple/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/arrayref-0.3.9/src/lib.rs:
