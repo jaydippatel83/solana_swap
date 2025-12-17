@@ -45,6 +45,12 @@ export function TokenManager() {
     setCreatedMint("");
 
     try {
+      // Validate decimals
+      const decimals = parseInt(tokenDecimals);
+      if (isNaN(decimals) || decimals < 0 || decimals > 9) {
+        throw new Error("Decimals must be a number between 0 and 9");
+      }
+
       const mintKeypair = Keypair.generate();
       const lamports = await getMinimumBalanceForRentExemptMint(connection);
 
@@ -58,7 +64,7 @@ export function TokenManager() {
         }),
         createInitializeMint2Instruction(
           mintKeypair.publicKey,
-          parseInt(tokenDecimals),
+          decimals,
           wallet.publicKey,
           wallet.publicKey,
           TOKEN_PROGRAM_ID
@@ -93,6 +99,11 @@ export function TokenManager() {
     setCreatedAccount("");
 
     try {
+      // Validate mint address
+      if (!mintAddress.trim()) {
+        throw new Error("Please enter a token mint address");
+      }
+
       const mint = new PublicKey(mintAddress);
       const associatedToken = getAssociatedTokenAddressSync(
         mint,
@@ -148,6 +159,16 @@ export function TokenManager() {
     setTxSignature("");
 
     try {
+      // Validate inputs
+      if (!mintToAddress.trim()) {
+        throw new Error("Please enter a token mint address");
+      }
+
+      const amountValue = parseFloat(mintAmount);
+      if (isNaN(amountValue) || amountValue <= 0) {
+        throw new Error("Please enter a valid amount greater than 0");
+      }
+
       const mint = new PublicKey(mintToAddress);
       const associatedToken = getAssociatedTokenAddressSync(
         mint,
@@ -160,7 +181,8 @@ export function TokenManager() {
       const mintInfo = await connection.getParsedAccountInfo(mint);
       const decimals = (mintInfo.value?.data as any).parsed.info.decimals;
 
-      const amount = parseFloat(mintAmount) * Math.pow(10, decimals);
+      // Convert to proper token amount with decimals
+      const amount = BigInt(Math.floor(amountValue * Math.pow(10, decimals)));
 
       const transaction = new Transaction().add(
         createMintToInstruction(
