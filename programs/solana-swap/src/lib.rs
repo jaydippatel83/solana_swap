@@ -8,7 +8,7 @@ use constant::*;
 use instructions::*;
 use state::*;
 
-declare_id!("NzRtiYTpbPefGmTJpVmLPNuEHjW1hQmxFvTgbe2WNUd");
+declare_id!("HtWA1QfHSwU5paq3vLkZ5yarZqVENat54VhULYTJCpUh");
 
 #[program]
 pub mod solana_swap {
